@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GiveBridge — Donor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0c0f1a;
+    --surface: #141826;
+    --surface2: #1c2235;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --teal: #3ecfb2;
+    --teal-dim: rgba(62,207,178,0.12);
+    --text: #e8eaf2;
+    --muted: #7a82a0;
+    --danger: #e05c6a;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 240px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 28px 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .sidebar-logo h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; color: var(--gold);
+    letter-spacing: -0.5px;
+  }
+  .sidebar-logo span { color: var(--teal); }
+  .sidebar-logo p { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
+  .nav-section { padding: 0 14px; margin-bottom: 6px; }
+  .nav-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; padding: 6px 10px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 9px;
+    cursor: pointer; transition: all 0.2s;
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--teal-dim); color: var(--teal); border-color: rgba(62,207,178,0.2); }
+  .nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--gold); color: var(--bg); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+
+  .sidebar-user {
+    margin-top: auto; padding: 16px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--teal)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--bg); flex-shrink: 0; }
+  .sidebar-user-info p { font-size: 13px; font-weight: 600; }
+  .sidebar-user-info span { font-size: 11px; color: var(--muted); }
+  .lang-btn { margin-left: auto; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 11px; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+  }
+  .topbar {
+    padding: 20px 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(20,24,38,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    border: none;
+  }
+  .btn-primary { background: var(--teal); color: var(--bg); }
+  .btn-primary:hover { background: #4ee0c5; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .btn-gold { background: var(--gold); color: var(--bg); }
+  .btn-gold:hover { background: var(--gold-light); }
+
+  .content { padding: 32px 36px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; margin-bottom: 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 4px; width: fit-content; }
+  .tab { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.2s; }
+  .tab.active { background: var(--surface2); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+  /* ── HERO SECTION ── */
+  .hero {
+    background: linear-gradient(135deg, #141826 0%, #0d1a2e 50%, #0f1a1a 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 44px;
+    margin-bottom: 28px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; right: -60px; top: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(62,207,178,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; right: 120px; bottom: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+  .hero h2 { font-family: 'Playfair Display', serif; font-size: 36px; line-height: 1.15; margin-bottom: 10px; }
+  .hero h2 em { color: var(--gold); font-style: normal; }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 520px; line-height: 1.6; margin-bottom: 24px; }
+  .hero-btns { display: flex; gap: 12px; }
+  .hero-stat {
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+    text-align: right;
+  }
+  .hero-stat .big { font-family: 'Playfair Display', serif; font-size: 52px; color: var(--teal); font-weight: 900; line-height: 1; }
+  .hero-stat p { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* ── STAT CARDS ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    position: relative; overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .stat-card.c1::before { background: var(--teal); }
+  .stat-card.c2::before { background: var(--gold); }
+  .stat-card.c3::before { background: #7c6df0; }
+  .stat-card.c4::before { background: var(--danger); }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 10px; }
+  .stat-value { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: var(--white); }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  .stat-badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .badge-up { background: rgba(62,207,178,0.12); color: var(--teal); }
+  .badge-down { background: rgba(224,92,106,0.12); color: var(--danger); }
+
+  /* ── TWO-COLUMN LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+  /* ── PANEL ── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-head h3 { font-size: 15px; font-weight: 600; }
+  .panel-head span { font-size: 12px; color: var(--muted); }
+  .panel-body { padding: 20px 22px; }
+
+  /* ── DONATION FORM ── */
+  .donation-amounts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .amt-btn {
+    padding: 10px 20px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .amt-btn.selected { background: var(--teal-dim); border-color: var(--teal); color: var(--teal); }
+  .amt-btn:hover:not(.selected) { border-color: rgba(255,255,255,0.2); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .form-group input, .form-group select {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 9px; padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--teal); }
+  .form-group select option { background: var(--surface2); }
+  .custom-amt { position: relative; }
+  .custom-amt span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  .custom-amt input { padding-left: 28px; }
+  .payment-methods { display: flex; gap: 10px; margin-bottom: 18px; }
+  .pay-btn {
+    flex: 1; padding: 12px; border-radius: 9px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); cursor: pointer;
+    font-size: 13px; font-weight: 500; text-align: center; transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .pay-btn .pay-icon { font-size: 20px; }
+  .pay-btn.selected { border-color: var(--gold); background: rgba(201,168,76,0.08); color: var(--gold); }
+  .recurrence { display: flex; gap: 8px; margin-bottom: 18px; }
+  .rec-btn {
+    padding: 8px 16px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .rec-btn.selected { background: rgba(201,168,76,0.12); border-color: var(--gold); color: var(--gold); }
+  .impact-box { background: var(--teal-dim); border: 1px solid rgba(62,207,178,0.2); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; font-size: 13px; color: var(--teal); line-height: 1.5; }
+  .impact-box strong { display: block; margin-bottom: 3px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 13px 14px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; }
+  .status-completed { background: rgba(62,207,178,0.12); color: var(--teal); }
+  .status-completed::before { background: var(--teal); }
+  .status-pending { background: rgba(201,168,76,0.12); color: var(--gold); }
+  .status-pending::before { background: var(--gold); }
+  .status-recurring { background: rgba(124,109,240,0.12); color: #a89cf5; }
+  .status-recurring::before { background: #a89cf5; }
+
+  /* ── MINI CHART ── */
+  .chart-bars { display: flex; align-items: flex-end; gap: 5px; height: 70px; padding: 0 2px; }
+  .chart-bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    background: var(--teal-dim); border: 1px solid rgba(62,207,178,0.2);
+    transition: background 0.2s; cursor: pointer;
+    position: relative;
+  }
+  .chart-bar:hover { background: rgba(62,207,178,0.3); }
+  .chart-bar.highlight { background: var(--teal); }
+  .chart-labels { display: flex; gap: 5px; margin-top: 6px; }
+  .chart-labels span { flex: 1; text-align: center; font-size: 9px; color: var(--muted); }
+
+  /* ── VIDEO CARDS ── */
+  .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    cursor: pointer; transition: transform 0.2s;
+  }
+  .video-card:hover { transform: translateY(-3px); }
+  .video-thumb {
+    height: 130px;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .video-thumb.v1 { background: linear-gradient(135deg, #0d2b2b, #1a4a40); }
+  .video-thumb.v2 { background: linear-gradient(135deg, #1a1a2e, #2d1b69); }
+  .video-thumb.v3 { background: linear-gradient(135deg, #2b1a0d, #4a2f0a); }
+  .video-thumb.v4 { background: linear-gradient(135deg, #0d1a2b, #1a3a5c); }
+  .video-thumb.v5 { background: linear-gradient(135deg, #2b0d1a, #5c1a3a); }
+  .video-thumb.v6 { background: linear-gradient(135deg, #1a2b0d, #3a5c1a); }
+  .play-btn {
+    position: absolute; bottom: 10px; right: 10px;
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px; padding: 4px 8px; font-size: 10px; color: white;
+  }
+  .video-info { padding: 14px; }
+  .video-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 5px; line-height: 1.4; }
+  .video-info p { font-size: 11px; color: var(--muted); }
+  .video-tag { display: inline-block; padding: 2px 8px; background: var(--teal-dim); color: var(--teal); border-radius: 4px; font-size: 10px; font-weight: 600; margin-bottom: 6px; }
+
+  /* ── EVENT CARDS ── */
+  .event-item {
+    display: flex; gap: 16px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .event-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .event-date {
+    flex-shrink: 0; width: 52px; height: 52px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .event-date .day { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .event-date .mon { font-size: 9px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
+  .event-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .event-info p { font-size: 12px; color: var(--muted); }
+  .event-type { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-top: 6px; }
+  .type-live { background: rgba(224,92,106,0.12); color: var(--danger); }
+  .type-virtual { background: rgba(62,207,178,0.12); color: var(--teal); }
+  .type-workshop { background: rgba(201,168,76,0.12); color: var(--gold); }
+
+  /* ── SUCCESS STORIES ── */
+  .story-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .story-quote { font-family: 'Playfair Display', serif; font-size: 15px; line-height: 1.6; color: var(--text); margin-bottom: 16px; font-style: italic; }
+  .story-quote::before { content: '"'; color: var(--gold); font-size: 24px; line-height: 0; vertical-align: -8px; margin-right: 4px; }
+  .story-author { display: flex; align-items: center; gap: 10px; }
+  .story-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .story-author-info p { font-size: 13px; font-weight: 600; }
+  .story-author-info span { font-size: 11px; color: var(--muted); }
+  .story-impact { display: inline-block; padding: 3px 10px; background: rgba(62,207,178,0.1); color: var(--teal); border-radius: 20px; font-size: 11px; font-weight: 600; margin-top: 10px; }
+
+  /* ── AI ASSISTANT ── */
+  .ai-widget {
+    position: fixed; bottom: 28px; right: 28px;
+    z-index: 200;
+  }
+  .ai-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), #2a9b87);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; box-shadow: 0 4px 20px rgba(62,207,178,0.4);
+    transition: transform 0.2s;
+  }
+  .ai-btn:hover { transform: scale(1.1); }
+  .ai-popup {
+    position: absolute; bottom: 66px; right: 0;
+    width: 300px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: none;
+  }
+  .ai-popup.open { display: block; }
+  .ai-popup-head { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .ai-popup-head span { font-size: 16px; }
+  .ai-popup-head h4 { font-size: 14px; font-weight: 600; }
+  .ai-popup-head p { font-size: 11px; color: var(--teal); }
+  .ai-messages { padding: 14px 16px; height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+  .ai-msg { font-size: 13px; line-height: 1.5; }
+  .ai-msg.bot { background: var(--surface2); border-radius: 10px 10px 10px 3px; padding: 10px 12px; color: var(--text); }
+  .ai-msg.user { background: var(--teal-dim); border: 1px solid rgba(62,207,178,0.2); border-radius: 10px 10px 3px 10px; padding: 10px 12px; color: var(--teal); align-self: flex-end; max-width: 80%; }
+  .ai-input-row { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .ai-input-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
+  .ai-send { background: var(--teal); border: none; border-radius: 8px; padding: 8px 12px; color: var(--bg); cursor: pointer; font-size: 14px; }
+
+  /* ── TAX STATEMENT ── */
+  .tax-card {
+    background: linear-gradient(135deg, var(--surface) 0%, #0f1d2a 100%);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: var(--radius); padding: 28px 32px;
+    position: relative; overflow: hidden;
+  }
+  .tax-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); }
+  .tax-year { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 8px; }
+  .tax-total { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 900; color: var(--white); }
+  .tax-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+  .tax-breakdown { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .tax-item { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .tax-item label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); display: block; margin-bottom: 4px; }
+  .tax-item span { font-size: 18px; font-weight: 700; font-family: 'Playfair Display', serif; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin-bottom: 8px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .fill-teal { background: linear-gradient(90deg, var(--teal), #2dd4b8); }
+  .fill-gold { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .fill-purple { background: linear-gradient(90deg, #7c6df0, #a89cf5); }
+
+  /* ── LANG SELECTOR ── */
+  .lang-select-panel { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .lang-opt { padding: 7px 14px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+  .lang-opt.active { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+
+  /* ── SALESFORCE BADGE ── */
+  .integration-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .int-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 20px; font-size: 12px;
+  }
+  .int-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-green { background: #3ecf5a; }
+  .dot-blue { background: #4a9cf5; }
+  .dot-orange { background: #f5a84a; }
+
+  /* ── PAGE VISIBILITY ── */
+  .page { display: none; }
+  .page.active { display: block; }
+  .section-intro { margin-bottom: 24px; }
+  .section-intro h2 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .section-intro p { color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Give<span>Bridge</span></h1>
+    <p>Donor Portal</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <span class="icon">⬡</span> Dashboard
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Donations</div>
+    <div class="nav-item" onclick="showPage('donate', this)">
+      <span class="icon">💳</span> Make a Donation
+    </div>
+    <div class="nav-item" onclick="showPage('history', this)">
+      <span class="icon">📊</span> Donation History
+    </div>
+    <div class="nav-item" onclick="showPage('tax', this)">
+      <span class="icon">📄</span> Tax Statements
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Community</div>
+    <div class="nav-item" onclick="showPage('learn', this)">
+      <span class="icon">▶</span> Education Videos
+    </div>
+    <div class="nav-item" onclick="showPage('events', this)">
+      <span class="icon">📅</span> Events & Training
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('stories', this)">
+      <span class="icon">✦</span> Success Stories
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Settings</div>
+    <div class="nav-item" onclick="showPage('settings', this)">
+      <span class="icon">⚙</span> Settings & Profile
+    </div>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="avatar">MJ</div>
+    <div class="sidebar-user-info">
+      <p>Maria Johnson</p>
+      <span>Gold Donor</span>
+    </div>
+    <button class="lang-btn" onclick="showPage('settings', document.querySelector('.nav-item:last-child'))">EN ▾</button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="topbar">
+      <div class="topbar-title">Good morning, Maria 👋</div>
+      <div class="topbar-actions">
+        <div class="integration-pills">
+          <div class="int-pill"><span class="int-dot dot-green"></span>Salesforce</div>
+          <div class="int-pill"><span class="int-dot dot-blue"></span>OpenAI</div>
+          <div class="int-pill"><span class="int-dot dot-orange"></span>Stripe</div>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('donate', document.querySelectorAll('.nav-item')[1])">+ Donate Now</button>
+      </div>
+    </div>
+    <div class="content">
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-label">Your Impact at a Glance</div>
+        <h2>You've changed <em>247 lives</em><br/>this year alone.</h2>
+        <p>Every contribution you make flows directly into communities that need it most. Thank you for being a cornerstone of change.</p>
+        <div class="hero-btns">
+          <button class="btn btn-gold" onclick="showPage('donate', document.querySelectorAll('.nav-item')[1])">Make a Donation</button>
+          <button class="btn btn-ghost" onclick="showPage('history', document.querySelectorAll('.nav-item')[2])">View History</button>
+        </div>
+        <div class="hero-stat">
+          <div class="big">$8,450</div>
+          <p>Total Given Lifetime</p>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stat-grid">
+        <div class="stat-card c1">
+          <div class="stat-label">This Year</div>
+          <div class="stat-value">$3,200</div>
+          <div class="stat-sub">Across 14 donations</div>
+          <span class="stat-badge badge-up">↑ 28% vs 2024</span>
+        </div>
+        <div class="stat-card c2">
+          <div class="stat-label">Recurring Monthly</div>
+          <div class="stat-value">$150</div>
+          <div class="stat-sub">Active since Jan 2024</div>
+          <span class="stat-badge badge-up">✓ Active</span>
+        </div>
+        <div class="stat-card c3">
+          <div class="stat-label">Tax Deductible</div>
+          <div class="stat-value">$2,850</div>
+          <div class="stat-sub">Eligible for 2025 filing</div>
+          <span class="stat-badge" style="background:rgba(124,109,240,0.12);color:#a89cf5">Download Ready</span>
+        </div>
+        <div class="stat-card c4">
+          <div class="stat-label">Lives Impacted</div>
+          <div class="stat-value">247</div>
+          <div class="stat-sub">Direct beneficiaries</div>
+          <span class="stat-badge badge-up">↑ 61 this month</span>
+        </div>
+      </div>
+
+      <!-- CHARTS + RECENT -->
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Donation Activity — 2025</h3><span>Monthly View</span></div>
+          <div class="panel-body">
+            <div class="chart-bars">
+              <div class="chart-bar" style="height:30%"></div>
+              <div class="chart-bar" style="height:55%"></div>
+              <div class="chart-bar" style="height:40%"></div>
+              <div class="chart-bar" style="height:70%"></div>
+              <div class="chart-bar" style="height:50%"></div>
+              <div class="chart-bar" style="height:85%"></div>
+              <div class="chart-bar" style="height:60%"></div>
+              <div class="chart-bar" style="height:45%"></div>
+              <div class="chart-bar" style="height:90%"></div>
+              <div class="chart-bar highlight" style="height:75%"></div>
+              <div class="chart-bar" style="height:20%"></div>
+              <div class="chart-bar" style="height:35%"></div>
+            </div>
+            <div class="chart-labels">
+              <span>J</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span>
+            </div>
+            <div style="margin-top:16px">
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Annual Goal Progress</span><span>$3,200 / $5,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-teal" style="width:64%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Education Fund</span><span>$1,100 / $2,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-gold" style="width:55%"></div></div>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Emergency Relief</span><span>$600 / $1,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-purple" style="width:60%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Recent Donations</h3><button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="showPage('history', document.querySelectorAll('.nav-item')[2])">View All</button></div>
+          <div class="panel-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Campaign</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Oct 15</td><td>Education Fund</td><td><strong>$150</strong></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+                <tr><td>Sep 30</td><td>Emergency Relief</td><td><strong>$500</strong></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+                <tr><td>Sep 15</td><td>Education Fund</td><td><strong>$150</strong></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+                <tr><td>Aug 22</td><td>Water Initiative</td><td><strong>$250</strong></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+                <tr><td>Aug 15</td><td>Education Fund</td><td><strong>$150</strong></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONATE PAGE -->
+  <div id="page-donate" class="page">
+    <div class="topbar"><div class="topbar-title">Make a Donation</div></div>
+    <div class="content">
+      <div class="section-intro">
+        <h2>Choose Your Impact</h2>
+        <p>Your contribution is securely processed and synced to your donor profile via Salesforce.</p>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Donation Amount</h3><span>Powered by Stripe</span></div>
+          <div class="panel-body">
+            <div class="recurrence">
+              <button class="rec-btn selected">One-time</button>
+              <button class="rec-btn" onclick="toggleRec(this)">Monthly</button>
+              <button class="rec-btn" onclick="toggleRec(this)">Quarterly</button>
+              <button class="rec-btn" onclick="toggleRec(this)">Annually</button>
+            </div>
+            <div class="donation-amounts">
+              <button class="amt-btn" onclick="selectAmt(this)">$25</button>
+              <button class="amt-btn" onclick="selectAmt(this)">$50</button>
+              <button class="amt-btn selected" onclick="selectAmt(this)">$100</button>
+              <button class="amt-btn" onclick="selectAmt(this)">$250</button>
+              <button class="amt-btn" onclick="selectAmt(this)">$500</button>
+              <button class="amt-btn" onclick="selectAmt(this)">$1,000</button>
+            </div>
+            <div class="form-group" style="margin-bottom:18px">
+              <label>Custom Amount</label>
+              <div class="custom-amt"><span>$</span><input type="number" placeholder="Enter amount" /></div>
+            </div>
+            <div class="impact-box">
+              <strong>💡 Your Impact</strong>
+              A $100 donation provides school supplies for 4 children for a full semester, giving them the tools to build a better future.
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Campaign / Fund</label>
+                <select>
+                  <option>Education Fund</option>
+                  <option>Emergency Relief</option>
+                  <option>Water Initiative</option>
+                  <option>Healthcare Access</option>
+                  <option>General Fund</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Dedication (optional)</label>
+                <input type="text" placeholder="In honor of..." />
+              </div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div class="form-group" style="margin-bottom:8px"><label>Payment Method</label></div>
+              <div class="payment-methods">
+                <div class="pay-btn selected" onclick="selectPay(this)"><span class="pay-icon">💳</span>Card</div>
+                <div class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">🏦</span>ACH / Bank</div>
+                <div class="pay-btn" onclick="selectPay(this)"><span class="pay-icon"></span>Apple Pay</div>
+                <div class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">G</span>Google Pay</div>
+                <div class="pay-btn" onclick="selectPay(this)"><span class="pay-icon">🅿</span>PayPal</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" placeholder="1234 5678 9012 3456" />
+              </div>
+              <div class="form-group">
+                <label>Name on Card</label>
+                <input type="text" placeholder="Maria Johnson" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expiry</label>
+                <input type="text" placeholder="MM / YY" />
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="text" placeholder="•••" />
+              </div>
+            </div>
+            <button class="btn btn-gold" style="width:100%;padding:14px;font-size:15px;border-radius:10px;margin-top:8px">
+              Donate $100 Securely →
+            </button>
+            <p style="text-align:center;font-size:11px;color:var(--muted);margin-top:10px">🔒 256-bit SSL encryption · PCI DSS compliant · Powered by Stripe</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="panel">
+            <div class="panel-head"><h3>Campaign Impact</h3></div>
+            <div class="panel-body">
+              <div class="progress-wrap">
+                <div class="progress-label"><span>Education Fund</span><span>$48,200 / $75,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-teal" style="width:64%"></div></div>
+              </div>
+              <div class="progress-wrap" style="margin-top:14px">
+                <div class="progress-label"><span>Emergency Relief</span><span>$21,500 / $30,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-gold" style="width:72%"></div></div>
+              </div>
+              <div class="progress-wrap" style="margin-top:14px">
+                <div class="progress-label"><span>Water Initiative</span><span>$9,800 / $20,000</span></div>
+                <div class="progress-bar"><div class="progress-fill fill-purple" style="width:49%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>🤖 AI Giving Advisor</h3><span style="color:var(--teal)">OpenAI Powered</span></div>
+            <div class="panel-body">
+              <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Based on your giving history and goals, our AI recommends:</p>
+              <div style="background:var(--teal-dim);border:1px solid rgba(62,207,178,0.2);border-radius:10px;padding:14px;margin-bottom:12px">
+                <p style="font-size:13px;line-height:1.6">Increasing your monthly recurring donation from <strong>$150 → $175</strong> would qualify you for Platinum Donor status and provide an additional 2 children with school supplies annually.</p>
+              </div>
+              <button class="btn btn-ghost" style="width:100%;font-size:13px">Accept Recommendation</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>Donation Receipt</h3><span>Auto-generated</span></div>
+            <div class="panel-body">
+              <p style="font-size:13px;color:var(--muted);">A tax receipt will be automatically emailed to <strong style="color:var(--text)">maria@email.com</strong> and synced to your Salesforce profile within 24 hours.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div id="page-history" class="page">
+    <div class="topbar"><div class="topbar-title">Donation History</div><div class="topbar-actions"><button class="btn btn-ghost">Export CSV</button><button class="btn btn-primary">Download Report</button></div></div>
+    <div class="content">
+      <div class="stat-grid" style="margin-bottom:24px">
+        <div class="stat-card c1"><div class="stat-label">All-Time Total</div><div class="stat-value">$8,450</div><div class="stat-sub">Since Jan 2021</div></div>
+        <div class="stat-card c2"><div class="stat-label">Total Donations</div><div class="stat-value">47</div><div class="stat-sub">Across 5 campaigns</div></div>
+        <div class="stat-card c3"><div class="stat-label">Avg. per Donation</div><div class="stat-value">$180</div><div class="stat-sub">Trending upward</div></div>
+        <div class="stat-card c4"><div class="stat-label">Largest Single Gift</div><div class="stat-value">$1,000</div><div class="stat-sub">Dec 2023 · Year-end</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>All Transactions</h3><span>Synced from Salesforce</span></div>
+        <div class="panel-body" style="padding:0">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Campaign</th><th>Method</th><th>Frequency</th><th>Amount</th><th>Receipt</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Oct 15, 2025</td><td>Education Fund</td><td>💳 Visa •4242</td><td>Monthly</td><td><strong>$150</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+              <tr><td>Sep 30, 2025</td><td>Emergency Relief</td><td>🏦 ACH</td><td>One-time</td><td><strong>$500</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+              <tr><td>Sep 15, 2025</td><td>Education Fund</td><td>💳 Visa •4242</td><td>Monthly</td><td><strong>$150</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+              <tr><td>Aug 22, 2025</td><td>Water Initiative</td><td>🅿 PayPal</td><td>One-time</td><td><strong>$250</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+              <tr><td>Aug 15, 2025</td><td>Education Fund</td><td>💳 Visa •4242</td><td>Monthly</td><td><strong>$150</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+              <tr><td>Jul 15, 2025</td><td>Education Fund</td><td>💳 Visa •4242</td><td>Monthly</td><td><strong>$150</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-recurring">Recurring</span></td></tr>
+              <tr><td>Jun 10, 2025</td><td>Healthcare Access</td><td> Apple Pay</td><td>One-time</td><td><strong>$400</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+              <tr><td>May 28, 2025</td><td>General Fund</td><td>💳 Visa •4242</td><td>One-time</td><td><strong>$75</strong></td><td><a href="#" style="color:var(--teal);font-size:12px">PDF</a></td><td><span class="status-badge status-completed">Completed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAX STATEMENTS PAGE -->
+  <div id="page-tax" class="page">
+    <div class="topbar"><div class="topbar-title">Tax Statements</div><div class="topbar-actions"><button class="btn btn-gold">Download All Statements</button></div></div>
+    <div class="content">
+      <div class="section-intro">
+        <h2>Annual Tax Documentation</h2>
+        <p>Official IRS-compliant charitable contribution statements for your records. Auto-generated and synced with Salesforce.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div class="tax-card">
+          <div class="tax-year">Tax Year 2025 · IRS Form 8283 Ready</div>
+          <div class="tax-total">$3,200.00</div>
+          <div class="tax-sub">Total charitable contributions · Tax deductible under IRC §170</div>
+          <div class="tax-breakdown">
+            <div class="tax-item"><label>Education Fund</label><span style="color:var(--teal)">$1,800</span></div>
+            <div class="tax-item"><label>Emergency Relief</label><span style="color:var(--gold)">$900</span></div>
+            <div class="tax-item"><label>Other Funds</label><span style="color:#a89cf5">$500</span></div>
+          </div>
+          <button class="btn btn-gold">Download 2025 Statement (PDF)</button>
+          <button class="btn btn-ghost" style="margin-left:10px">Email to Tax Advisor</button>
+        </div>
+        <div class="tax-card" style="opacity:0.75">
+          <div class="tax-year">Tax Year 2024</div>
+          <div class="tax-total">$2,850.00</div>
+          <div class="tax-sub">Total charitable contributions</div>
+          <div class="tax-breakdown">
+            <div class="tax-item"><label>Education Fund</label><span style="color:var(--teal)">$1,500</span></div>
+            <div class="tax-item"><label>Water Initiative</label><span style="color:var(--gold)">$850</span></div>
+            <div class="tax-item"><label>Other Funds</label><span style="color:#a89cf5">$500</span></div>
+          </div>
+          <button class="btn btn-ghost">Download 2024 Statement (PDF)</button>
+        </div>
+        <div class="tax-card" style="opacity:0.55">
+          <div class="tax-year">Tax Year 2023</div>
+          <div class="tax-total">$2,400.00</div>
+          <div class="tax-sub">Total charitable contributions</div>
+          <button class="btn btn-ghost">Download 2023 Statement (PDF)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDUCATION VIDEOS -->
+  <div id="page-learn" class="page">
+    <div class="topbar"><div class="topbar-title">Education & Learning</div></div>
+    <div class="content">
+      <div class="tabs">
+        <div class="tab active">All Videos</div>
+        <div class="tab" onclick="switchTab(this)">Getting Started</div>
+        <div class="tab" onclick="switchTab(this)">Impact Stories</div>
+        <div class="tab" onclick="switchTab(this)">Tax Guidance</div>
+        <div class="tab" onclick="switchTab(this)">Community</div>
+      </div>
+      <div class="video-grid">
+        <div class="video-card">
+          <div class="video-thumb v1">🎓<div class="play-btn">▶ 8:42</div></div>
+          <div class="video-info"><span class="video-tag">Getting Started</span><h4>How Your Donations Create Real Change</h4><p>Updated Oct 2025 · 14,200 views</p></div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb v2">💡<div class="play-btn">▶ 12:15</div></div>
+          <div class="video-info"><span class="video-tag">Tax Guidance</span><h4>Maximizing Your Charitable Tax Deductions in 2025</h4><p>Updated Sep 2025 · 8,900 views</p></div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb v3">🌍<div class="play-btn">▶ 6:30</div></div>
+          <div class="video-info"><span class="video-tag">Impact Stories</span><h4>The Water Initiative: One Year Later</h4><p>Updated Aug 2025 · 22,100 views</p></div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb v4">📊<div class="play-btn">▶ 18:05</div></div>
+          <div class="video-info"><span class="video-tag">Community</span><h4>Understanding Donor Reports & Analytics</h4><p>Updated Jul 2025 · 5,400 views</p></div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb v5">❤️<div class="play-btn">▶ 9:50</div></div>
+          <div class="video-info"><span class="video-tag">Impact Stories</span><h4>Education Fund: Classroom Transformations</h4><p>Updated Jun 2025 · 31,800 views</p></div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb v6">🤝<div class="play-btn">▶ 14:22</div></div>
+          <div class="video-info"><span class="video-tag">Getting Started</span><h4>Setting Up Recurring Donations & Goals</h4><p>Updated May 2025 · 7,200 views</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENTS PAGE -->
+  <div id="page-events" class="page">
+    <div class="topbar"><div class="topbar-title">Events & Training</div><div class="topbar-actions"><button class="btn btn-primary">Register for Event</button></div></div>
+    <div class="content">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Upcoming Events</h3><span>3 events near you</span></div>
+          <div class="panel-body">
+            <div class="event-item">
+              <div class="event-date"><div class="day">12</div><div class="mon">Nov</div></div>
+              <div class="event-info">
+                <h4>Annual Donor Gala 2025</h4>
+                <p>The Grand Ballroom, New York · 6:00 PM EST</p>
+                <span class="event-type type-live">In Person</span>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date"><div class="day">18</div><div class="mon">Nov</div></div>
+              <div class="event-info">
+                <h4>Tax Planning for Donors — Webinar</h4>
+                <p>Online via Zoom · 2:00 PM EST</p>
+                <span class="event-type type-virtual">Virtual</span>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date"><div class="day">02</div><div class="mon">Dec</div></div>
+              <div class="event-info">
+                <h4>Community Impact Workshop</h4>
+                <p>Chicago Community Center · 10:00 AM CST</p>
+                <span class="event-type type-workshop">Workshop</span>
+              </div>
+            </div>
+            <div class="event-item">
+              <div class="event-date"><div class="day">10</div><div class="mon">Dec</div></div>
+              <div class="event-info">
+                <h4>Year-End Giving Strategy Session</h4>
+                <p>Online via Teams · 1:00 PM EST</p>
+                <span class="event-type type-virtual">Virtual</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Training Programs</h3></div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+                <h4 style="font-size:14px;margin-bottom:6px">📘 Donor Essentials Certification</h4>
+                <p style="font-size:12px;color:var(--muted);margin-bottom:10px">6-module self-paced course · ~4 hours</p>
+                <div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill fill-teal" style="width:75%"></div></div>
+                <p style="font-size:11px;color:var(--teal)">75% complete — 1 module remaining</p>
+              </div>
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+                <h4 style="font-size:14px;margin-bottom:6px">🏆 Advanced Impact Strategist</h4>
+                <p style="font-size:12px;color:var(--muted);margin-bottom:10px">10-module program · ~12 hours · Certification</p>
+                <div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill fill-gold" style="width:20%"></div></div>
+                <p style="font-size:11px;color:var(--gold)">20% complete — 8 modules remaining</p>
+              </div>
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px">
+                <h4 style="font-size:14px;margin-bottom:6px">🌐 Multilingual Community Leader</h4>
+                <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Available in 12 languages · 3 modules</p>
+                <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px;margin-top:4px">Enroll Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS STORIES PAGE -->
+  <div id="page-stories" class="page">
+    <div class="topbar"><div class="topbar-title">Success Stories</div></div>
+    <div class="content">
+      <div class="section-intro">
+        <h2>The Lives You've Touched</h2>
+        <p>Real stories from real beneficiaries — powered and translated by OpenAI into 12 languages.</p>
+      </div>
+      <div class="three-col">
+        <div class="story-card">
+          <div class="story-quote">Thanks to this organization, my daughter was able to finish school and is now the first engineer in our family. Your generosity changed our lives forever.</div>
+          <div class="story-author">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#0d2b2b,#3ecfb2)">🇬🇭</div>
+            <div class="story-author-info"><p>Amara Mensah</p><span>Accra, Ghana · Education Fund</span></div>
+          </div>
+          <span class="story-impact">Education Fund Beneficiary</span>
+        </div>
+        <div class="story-card">
+          <div class="story-quote">When the flood destroyed our home, this community provided water filtration and emergency supplies within 48 hours. We are forever grateful.</div>
+          <div class="story-author">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#1a1a2e,#7c6df0)">🇧🇩</div>
+            <div class="story-author-info"><p>Rajib Chowdhury</p><span>Dhaka, Bangladesh · Emergency Relief</span></div>
+          </div>
+          <span class="story-impact">Emergency Relief Recipient</span>
+        </div>
+        <div class="story-card">
+          <div class="story-quote">Our village now has clean water for the first time in 30 years. My children no longer walk 5 miles a day. This is what hope feels like.</div>
+          <div class="story-author">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#2b1a0d,#c9a84c)">🇰🇪</div>
+            <div class="story-author-info"><p>Grace Wanjiku</p><span>Nairobi, Kenya · Water Initiative</span></div>
+          </div>
+          <span class="story-impact">Water Initiative Beneficiary</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div id="page-settings" class="page">
+    <div class="topbar"><div class="topbar-title">Settings & Profile</div><div class="topbar-actions"><button class="btn btn-primary">Save Changes</button></div></div>
+    <div class="content">
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><h3>Language & Localization</h3><span style="color:var(--teal)">OpenAI Translation</span></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--muted);margin-bottom:14px">The portal automatically translates all content including donation receipts, tax statements, and success stories into your preferred language.</p>
+            <div class="lang-select-panel">
+              <div class="lang-opt active">🇺🇸 English</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇪🇸 Español</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇫🇷 Français</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇵🇹 Português</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇩🇪 Deutsch</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇸🇦 العربية</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇨🇳 中文</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇯🇵 日本語</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇰🇷 한국어</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇮🇳 हिन्दी</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇷🇺 Русский</div>
+              <div class="lang-opt" onclick="toggleLang(this)">🇳🇬 Hausa</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Integrations</h3></div>
+          <div class="panel-body">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
+                <div><p style="font-size:14px;font-weight:600">☁️ Salesforce CRM</p><p style="font-size:12px;color:var(--muted)">Donor profile, history, campaigns</p></div>
+                <span style="color:var(--teal);font-size:12px;font-weight:600">● Connected</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
+                <div><p style="font-size:14px;font-weight:600">🤖 OpenAI GPT-4o</p><p style="font-size:12px;color:var(--muted)">AI advisor, translation, chatbot</p></div>
+                <span style="color:var(--teal);font-size:12px;font-weight:600">● Connected</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
+                <div><p style="font-size:14px;font-weight:600">💳 Stripe Payments</p><p style="font-size:12px;color:var(--muted)">Cards, ACH, Apple/Google Pay</p></div>
+                <span style="color:var(--teal);font-size:12px;font-weight:600">● Connected</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:9px;border:1px solid var(--border)">
+                <div><p style="font-size:14px;font-weight:600">🅿 PayPal</p><p style="font-size:12px;color:var(--muted)">Alternative payment method</p></div>
+                <span style="color:var(--teal);font-size:12px;font-weight:600">● Connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- AI ASSISTANT WIDGET -->
+<div class="ai-widget">
+  <div class="ai-popup" id="aiPopup">
+    <div class="ai-popup-head">
+      <span>🤖</span>
+      <div><h4>GiveBridge AI</h4><p>Powered by OpenAI · Always here</p></div>
+    </div>
+    <div class="ai-messages" id="aiMessages">
+      <div class="ai-msg bot">Hi Maria! I can help with donation questions, tax guidance, finding campaigns, or translating anything. What can I do for you?</div>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="aiInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendAI()"/>
+      <button class="ai-send" onclick="sendAI()">→</button>
+    </div>
+  </div>
+  <button class="ai-btn" onclick="toggleAI()">🤖</button>
+</div>
+
+<script>
+  function showPage(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    if (el) el.classList.add('active');
+  }
+
+  function selectAmt(btn) {
+    document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function selectPay(btn) {
+    document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function toggleRec(btn) {
+    document.querySelectorAll('.rec-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function switchTab(el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleLang(el) {
+    document.querySelectorAll('.lang-opt').forEach(l => l.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  let aiOpen = false;
+  function toggleAI() {
+    aiOpen = !aiOpen;
+    document.getElementById('aiPopup').className = 'ai-popup' + (aiOpen ? ' open' : '');
+  }
+
+  const aiReplies = [
+    "Your $100 donation to the Education Fund helps provide school supplies for 4 children. Would you like to increase your impact?",
+    "Your 2025 tax statement is ready for download. It shows $3,200 in deductible contributions.",
+    "You're 64% toward your $5,000 annual giving goal. Just $1,800 more to reach it by December!",
+    "I can translate any document or page into 12 languages. Which language would you prefer?",
+    "Based on your history, I recommend increasing your monthly recurring gift by $25 to reach Platinum Donor status."
+  ];
+  let aiIdx = 0;
+
+  function sendAI() {
+    const input = document.getElementById('aiInput');
+    const msgs = document.getElementById('aiMessages');
+    if (!input.value.trim()) return;
+    msgs.innerHTML += `<div class="ai-msg user">${input.value}</div>`;
+    input.value = '';
+    setTimeout(() => {
+      msgs.innerHTML += `<div class="ai-msg bot">${aiReplies[aiIdx++ % aiReplies.length]}</div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 600);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+</script>
+</body>
+</html>
